@@ -9,6 +9,3 @@ update	sale.tb_order_line
 set		total_vat_sum	=	unit_price*quantity*1.08;
 
 alter table sale.tb_order_line alter column total_vat_sum set not null;
-
-select	*
-from	sale.tb_order_line;
