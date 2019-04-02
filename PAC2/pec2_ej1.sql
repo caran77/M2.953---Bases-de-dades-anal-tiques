@@ -18,7 +18,6 @@ DROP TABLE IF EXISTS sale_cdc.tb_subcategory_cdc;
 DROP TABLE IF EXISTS sale_cdc.tb_category_cdc;
 DROP TABLE IF EXISTS sale_cdc.tb_client_cdc;
 
-
 ----------------------------------------------------------------------------------------------
 --
 -- Create table tb_client_cdc
@@ -51,7 +50,7 @@ CREATE TABLE sale_cdc.tb_client_cdc
 --
 ----------------------------------------------------------------------------------------------
 
-CREATE TABLE sale_cdc.tb_category
+CREATE TABLE sale_cdc.tb_category_cdc
 (
 	category_code        CHAR(5) NOT NULL,
 	category_name        CHARACTER VARYING(70) NOT NULL,
@@ -71,7 +70,7 @@ CREATE TABLE sale_cdc.tb_category
 --
 ----------------------------------------------------------------------------------------------
 
-CREATE TABLE sale_cdc.tb_subcategory
+CREATE TABLE sale_cdc.tb_subcategory_cdc
 (
 	subcategory_code     CHAR(5) NOT NULL,
 	category_code        CHAR(5),
@@ -92,7 +91,7 @@ CREATE TABLE sale_cdc.tb_subcategory
 --
 ----------------------------------------------------------------------------------------------
 
-CREATE TABLE sale_cdc.tb_product
+CREATE TABLE sale_cdc.tb_product_cdc
 (
 	product_code         CHAR(5) NOT NULL,
 	subcategory_code     CHAR(5),
@@ -114,7 +113,7 @@ CREATE TABLE sale_cdc.tb_product
 --
 ----------------------------------------------------------------------------------------------
 
-CREATE TABLE sale_cdc.tb_order
+CREATE TABLE sale_cdc.tb_order_cdc
 (
 	order_number         CHAR(10) NOT NULL,
 	client_code          CHAR(5) NOT NULL,
@@ -137,7 +136,7 @@ CREATE TABLE sale_cdc.tb_order
 --
 ----------------------------------------------------------------------------------------------
 
-CREATE TABLE sale_cdc.tb_order_line
+CREATE TABLE sale_cdc.tb_order_line_cdc
 (
 	order_number         CHAR(10) NOT NULL,
 	order_line_number    INTEGER NOT NULL,
