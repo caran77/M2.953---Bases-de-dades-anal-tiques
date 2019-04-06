@@ -1,46 +1,46 @@
 --
 -- TB_CATEGORY
 --
-create or replace function sale.fn_tb_category()  returns trigger as 
+CREATE OR REPLACE FUNCTION sale.fn_tb_category()  RETURNS TRIGGER AS 
 $$
-declare
-	v_operation		sale_cdc.tb_category_cdc.operation%type := 'D';
-	v_mycode		numeric(1);
-	v_row			sale_cdc.tb_category_cdc%rowtype;
-begin	
+DECLARE
+	v_operation		sale_cdc.tb_category_cdc.operation%TYPE := 'D';
+	v_mycode		NUMERIC(1);
+	v_row			sale_cdc.tb_category_cdc%ROWTYPE;
+BEGIN	
 	--
 	-- If the operation is a delete, we have to save the OLD value
 	-- If not, we have to save the NEW value
 	--
 	v_row := NEW;
-	if TG_OP = 'DELETE' then
+	IF TG_OP = 'DELETE' THEN
 		v_row := OLD;
-	end if;
-	if TG_OP in ('INSERT', 'UPDATE', 'DELETE') then				  			
-		v_operation := substr(TG_OP, 1, 1);
+	END IF;
+	IF TG_OP IN ('INSERT', 'UPDATE', 'DELETE') THEN				  			
+		v_operation := SUBSTR(TG_OP, 1, 1);
 		--
 		-- Does the row exists?
 		--
 		SELECT 1 INTO v_mycode FROM sale_cdc.tb_category_cdc CAT WHERE CAT.category_code = V_ROW.category_code;
 		--
-		if FOUND then
+		IF FOUND THEN
 			--
 			-- If the row exists, we update it
 			--
-			update  sale_cdc.tb_category_cdc	CAT
-			set  	category_name			=	V_ROW.category_name,
+			UPDATE  sale_cdc.tb_category_cdc	CAT
+			SET  	category_name			=	V_ROW.category_name,
 					created_by_user			=	V_ROW.created_by_user,
 					created_date			=	V_ROW.created_date,
 					updated_date			=	V_ROW.updated_date,
 					operation				=	v_operation,
-					user_id 				= 	current_user,
-					operation_timestamp		=	now()::timestamp
-			where	CAT.category_code		=	V_ROW.category_code;		
-		else
+					user_id 				= 	CURRENT_USER,
+					operation_timestamp		=	now()::TIMESTAMP
+			WHERE	CAT.category_code		=	V_ROW.category_code;		
+		ELSE
 			--
 			-- If the row not exists, we insert it
 			--		
-			insert into sale_cdc.tb_category_cdc (
+			INSERT INTO sale_cdc.tb_category_cdc (
 				category_code,
 				category_name,
 				created_by_user,
@@ -49,59 +49,59 @@ begin
 				operation,
 				user_id,
 				operation_timestamp
-			) values (
+			) VALUES (
 				V_ROW.category_code,
 				V_ROW.category_name,
 				V_ROW.created_by_user,
 				V_ROW.created_date,
 				V_ROW.updated_date,
 				v_operation,
-				current_user,
-				now()::timestamp			
+				CURRENT_USER,
+				now()::TIMESTAMP			
 			);
-		end if;			
-    end if;                
-    return null;
-end;
-$$ language plpgsql;
+		END IF;			
+    END IF;                
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
 
-drop trigger if exists tb_category_auditory on sale.tb_category;
+DROP TRIGGER IF EXISTS tb_category_auditory on sale.tb_category;
 
-create trigger tb_category_auditory 
-	after insert or update or delete on sale.tb_category
-	for each row execute function sale.fn_tb_category();
+CREATE TRIGGER tb_category_auditory 
+	AFTER INSERT OR UPDATE OR DELETE ON sale.tb_category
+	FOR EACH ROW EXECUTE FUNCTION sale.fn_tb_category();
 	
 --
 -- TB_CLIENT
 --
-create or replace function sale.fn_tb_client()  returns trigger as 
+CREATE OR REPLACE FUNCTION sale.fn_tb_client()  RETURNS TRIGGER AS 
 $$
-declare
-	v_operation		sale_cdc.tb_client_cdc.operation%type := 'D';
+DECLARE
+	v_operation		sale_cdc.tb_client_cdc.operation%TYPE := 'D';
 	v_mycode		numeric(1);
-	v_row			sale_cdc.tb_client_cdc%rowtype;
-begin	
+	v_row			sale_cdc.tb_client_cdc%ROWTYPE;
+BEGIN	
 	--
 	-- If the operation is a delete, we have to save the OLD value
 	-- If not, we have to save the NEW value
 	--
 	v_row := NEW;
-	if TG_OP = 'DELETE' then
+	IF TG_OP = 'DELETE' THEN
 		v_row := OLD;
-	end if;
-	if TG_OP in ('INSERT', 'UPDATE', 'DELETE') then				  			
-		v_operation := substr(TG_OP, 1, 1);
+	END IF;
+	IF TG_OP IN ('INSERT', 'UPDATE', 'DELETE') THEN				  			
+		v_operation := SUBSTR(TG_OP, 1, 1);
 		--
 		-- Does the row exists?
 		--
 		SELECT 1 INTO v_mycode FROM sale_cdc.tb_client_cdc CAT WHERE CAT.client_code = V_ROW.client_code;
 		--
-		if FOUND then
+		IF FOUND THEN
 			--
 			-- If the row exists, we update it
 			--
-			update  sale_cdc.tb_client_cdc	CLI
-			set  	client_name				=	V_ROW.client_name,
+			UPDATE  sale_cdc.tb_client_cdc	CLI
+			SET  	client_name				=	V_ROW.client_name,
 					address					=	V_ROW.address,
 					city					=	V_ROW.city,
 					country					=	V_ROW.country,
@@ -112,14 +112,14 @@ begin
 					created_date			=	V_ROW.created_date,
 					updated_date			=	V_ROW.updated_date,
 					operation				=	v_operation,
-					user_id 				= 	current_user,
-					operation_timestamp		=	now()::timestamp
-			where	CLI.client_code			=	V_ROW.client_code;		
-		else
+					user_id 				= 	CURRENT_USER,
+					operation_timestamp		=	now()::TIMESTAMP
+			WHERE	CLI.client_code			=	V_ROW.client_code;		
+		ELSE
 			--
 			-- If the row not exists, we insert it
 			--		
-			insert into sale_cdc.tb_client_cdc (
+			INSERT INTO sale_cdc.tb_client_cdc (
 				client_code,
 				client_name,
 				address,
@@ -134,7 +134,7 @@ begin
 				operation,
 				user_id,
 				operation_timestamp
-			) values (
+			) VALUES (
 				V_ROW.client_code,
 				V_ROW.client_name,
 				V_ROW.address,
@@ -147,52 +147,52 @@ begin
 				V_ROW.created_date,
 				V_ROW.updated_date,
 				v_operation,
-				current_user,
-				now()::timestamp			
+				CURRENT_USER,
+				now()::TIMESTAMP			
 			);
-		end if;			
-    end if;                
-    return null;
-end;
-$$ language plpgsql;
+		END IF;			
+    END IF;                
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
 
-drop trigger if exists tb_client_auditory on sale.tb_client;
+DROP TRIGGER IF EXISTS tb_client_auditory on sale.tb_client;
 
-create trigger tb_client_auditory 
-	after insert or update or delete on sale.tb_client
-	for each row execute function sale.fn_tb_client();	
+CREATE TRIGGER tb_client_auditory 
+	AFTER INSERT OR UPDATE OR DELETE ON sale.tb_client
+	FOR EACH ROW EXECUTE FUNCTION sale.fn_tb_client();	
 	
 --
 -- TB_ORDER
 --
-create or replace function sale.fn_tb_order()  returns trigger as 
+CREATE OR REPLACE FUNCTION sale.fn_tb_order()  returns TRIGGER AS 
 $$
-declare
-	v_operation		sale_cdc.tb_order_cdc.operation%type := 'D';
+DECLARE
+	v_operation		sale_cdc.tb_order_cdc.operation%TYPE := 'D';
 	v_mycode		numeric(1);
-	v_row			sale_cdc.tb_order_cdc%rowtype;
-begin	
+	v_row			sale_cdc.tb_order_cdc%ROWTYPE;
+BEGIN	
 	--
 	-- If the operation is a delete, we have to save the OLD value
 	-- If not, we have to save the NEW value
 	--
 	v_row := NEW;
-	if TG_OP = 'DELETE' then
+	IF TG_OP = 'DELETE' THEN
 		v_row := OLD;
-	end if;
-	if TG_OP in ('INSERT', 'UPDATE', 'DELETE') then				  			
-		v_operation := substr(TG_OP, 1, 1);
+	END IF;
+	IF TG_OP IN ('INSERT', 'UPDATE', 'DELETE') THEN				  			
+		v_operation := SUBSTR(TG_OP, 1, 1);
 		--
 		-- Does the row exists?
 		--
 		SELECT 1 INTO v_mycode FROM sale_cdc.tb_order_cdc ORD WHERE ORD.order_number = V_ROW.order_number;
 		--
-		if FOUND then
+		IF FOUND THEN
 			--
 			-- If the row exists, we update it
 			--
-			update  sale_cdc.tb_order_cdc	ORD
-			set  	client_code				=	V_ROW.client_code,
+			UPDATE  sale_cdc.tb_order_cdc	ORD
+			SET  	client_code				=	V_ROW.client_code,
 					order_date				=	V_ROW.order_date,
 					delivery_date			=	V_ROW.delivery_date,
 					reception_date			=	V_ROW.reception_date,
@@ -200,14 +200,14 @@ begin
 					created_date			=	V_ROW.created_date,
 					updated_date			=	V_ROW.updated_date,
 					operation				=	v_operation,
-					user_id 				= 	current_user,
-					operation_timestamp		=	now()::timestamp
-			where	ORD.order_number		=	V_ROW.order_number;		
-		else
+					user_id 				= 	CURRENT_USER,
+					operation_timestamp		=	now()::TIMESTAMP
+			WHERE	ORD.order_number		=	V_ROW.order_number;		
+		ELSE
 			--
 			-- If the row not exists, we insert it
 			--		
-			insert into sale_cdc.tb_order_cdc (
+			INSERT INTO sale_cdc.tb_order_cdc (
 				order_number,
 				client_code,
 				order_date,
@@ -219,7 +219,7 @@ begin
 				operation,
 				user_id,
 				operation_timestamp
-			) values (
+			) VALUES (
 				V_ROW.order_number,
 				V_ROW.client_code,
 				V_ROW.order_date,
@@ -229,41 +229,41 @@ begin
 				V_ROW.created_date,
 				V_ROW.updated_date,
 				v_operation,
-				current_user,
-				now()::timestamp			
+				CURRENT_USER,
+				now()::TIMESTAMP			
 			);
-		end if;			
-    end if;                
-    return null;
-end;
-$$ language plpgsql;
+		END IF;			
+    END IF;                
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
 
-drop trigger if exists tb_order_auditory on sale.tb_order;
+DROP TRIGGER IF EXISTS tb_order_auditory ON sale.tb_order;
 
-create trigger tb_order_auditory 
-	after insert or update or delete on sale.tb_order
-	for each row execute function sale.fn_tb_order();	
+CREATE TRIGGER tb_order_auditory 
+	AFTER INSERT OR UPDATE OR DELETE ON sale.tb_order
+	FOR EACH ROW EXECUTE FUNCTION sale.fn_tb_order();	
 	
 --
 -- TB_ORDER_LINE
 --
-create or replace function sale.fn_tb_order_line()  returns trigger as 
+CREATE OR REPLACE FUNCTION sale.fn_tb_order_line()  RETURNS TRIGGER AS 
 $$
-declare
-	v_operation		sale_cdc.tb_order_line_cdc.operation%type := 'D';
+DECLARE
+	v_operation		sale_cdc.tb_order_line_cdc.operation%TYPE := 'D';
 	v_mycode		numeric(1);
-	v_row			sale_cdc.tb_order_line_cdc%rowtype;
-begin	
+	v_row			sale_cdc.tb_order_line_cdc%ROWTYPE;
+BEGIN	
 	--
 	-- If the operation is a delete, we have to save the OLD value
 	-- If not, we have to save the NEW value
 	--
 	v_row := NEW;
-	if TG_OP = 'DELETE' then
+	IF TG_OP = 'DELETE' THEN
 		v_row := OLD;
-	end if;
-	if TG_OP in ('INSERT', 'UPDATE', 'DELETE') then				  			
-		v_operation := substr(TG_OP, 1, 1);
+	END IF;
+	IF TG_OP IN ('INSERT', 'UPDATE', 'DELETE') THEN				  			
+		v_operation := SUBSTR(TG_OP, 1, 1);
 		--
 		-- Does the row exists?
 		--
@@ -273,27 +273,27 @@ begin
 		WHERE 	ORD.order_number 		= 	V_ROW.order_number
 		 AND	ORD.order_line_number	=	V_ROW.order_line_number;
 		--
-		if FOUND then
+		IF FOUND THEN
 			--
 			-- If the row exists, we update it
 			--
-			update  sale_cdc.tb_order_line_cdc	ORD
-			set  	product_code			=	V_ROW.product_code,
+			UPDATE  sale_cdc.tb_order_line_cdc	ORD
+			SET  	product_code			=	V_ROW.product_code,
 					quantity				=	V_ROW.quantity,
 					unit_price				=	V_ROW.unit_price,					
 					created_by_user			=	V_ROW.created_by_user,
 					created_date			=	V_ROW.created_date,
 					updated_date			=	V_ROW.updated_date,
 					operation				=	v_operation,
-					user_id 				= 	current_user,
-					operation_timestamp		=	now()::timestamp
-			where	ORD.order_number		=	V_ROW.order_number
-			 and	ORD.order_line_number	=	V_ROW.order_line_number;
-		else
+					user_id 				= 	CURRENT_USER,
+					operation_timestamp		=	now()::TIMESTAMP
+			WHERE	ORD.order_number		=	V_ROW.order_number
+			 AND	ORD.order_line_number	=	V_ROW.order_line_number;
+		ELSE
 			--
 			-- If the row not exists, we insert it
 			--		
-			insert into sale_cdc.tb_order_line_cdc (
+			INSERT INTO sale_cdc.tb_order_line_cdc (
 				order_number,
 			 	order_line_number,
 				product_code,
@@ -305,7 +305,7 @@ begin
 				operation,
 				user_id,
 				operation_timestamp
-			) values (
+			) VALUES (
 				V_ROW.order_number,
 			 	V_ROW.order_line_number,				
 				V_ROW.product_code,
@@ -315,41 +315,41 @@ begin
 				V_ROW.created_date,
 				V_ROW.updated_date,
 				v_operation,
-				current_user,
-				now()::timestamp			
+				CURRENT_USER,
+				now()::TIMESTAMP			
 			);
-		end if;			
-    end if;                
-    return null;
-end;
-$$ language plpgsql;
+		END IF;			
+    END IF;                
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
 
-drop trigger if exists tb_order_line_auditory on sale.tb_order_line;
+DROP TRIGGER IF EXISTS tb_order_line_auditory ON sale.tb_order_line;
 
-create trigger tb_order_line_auditory 
-	after insert or update or delete on sale.tb_order_line
-	for each row execute function sale.fn_tb_order_line();	
+CREATE TRIGGER tb_order_line_auditory 
+	AFTER INSERT OR UPDATE OR DELETE ON sale.tb_order_line
+	FOR EACH ROW EXECUTE FUNCTION sale.fn_tb_order_line();	
 	
 --
 -- TB_PRODUCT
 --
-create or replace function sale.fn_tb_product()  returns trigger as 
+CREATE OR REPLACE FUNCTION sale.fn_tb_product()  returns TRIGGER AS 
 $$
-declare
-	v_operation		sale_cdc.tb_product_cdc.operation%type := 'D';
+DECLARE
+	v_operation		sale_cdc.tb_product_cdc.operation%TYPE := 'D';
 	v_mycode		numeric(1);
-	v_row			sale_cdc.tb_product_cdc%rowtype;
-begin	
+	v_row			sale_cdc.tb_product_cdc%ROWTYPE;
+BEGIN	
 	--
 	-- If the operation is a delete, we have to save the OLD value
 	-- If not, we have to save the NEW value
 	--
 	v_row := NEW;
-	if TG_OP = 'DELETE' then
+	IF TG_OP = 'DELETE' THEN
 		v_row := OLD;
-	end if;
-	if TG_OP in ('INSERT', 'UPDATE', 'DELETE') then				  			
-		v_operation := substr(TG_OP, 1, 1);
+	END IF;
+	IF TG_OP in ('INSERT', 'UPDATE', 'DELETE') THEN				  			
+		v_operation := SUBSTR(TG_OP, 1, 1);
 		--
 		-- Does the row exists?
 		--
@@ -358,26 +358,26 @@ begin
 		FROM 	sale_cdc.tb_product_cdc PRO 
 		WHERE 	PRO.product_code 		= 	V_ROW.product_code;
 		--
-		if FOUND then
+		IF FOUND THEN
 			--
 			-- If the row exists, we update it
 			--
-			update  sale_cdc.tb_product_cdc	PRO
-			set  	subcategory_code		=	V_ROW.subcategory_code,
+			UPDATE  sale_cdc.tb_product_cdc	PRO
+			SET  	subcategory_code		=	V_ROW.subcategory_code,
 					product_name			=	V_ROW.product_name,					
 					price					=	V_ROW.price,
 					created_by_user			=	V_ROW.created_by_user,
 					created_date			=	V_ROW.created_date,
 					updated_date			=	V_ROW.updated_date,
 					operation				=	v_operation,
-					user_id 				= 	current_user,
-					operation_timestamp		=	now()::timestamp
-			where	product_code			=	V_ROW.product_code;
-		else
+					user_id 				= 	CURRENT_USER,
+					operation_timestamp		=	now()::TIMESTAMP
+			WHERE	product_code			=	V_ROW.product_code;
+		ELSE
 			--
 			-- If the row not exists, we insert it
 			--		
-			insert into sale_cdc.tb_product_cdc (
+			INSERT INTO sale_cdc.tb_product_cdc (
 				product_code,
 			 	subcategory_code,
 				product_name,
@@ -388,7 +388,7 @@ begin
 				operation,
 				user_id,
 				operation_timestamp
-			) values (
+			) VALUES (
 				V_ROW.product_code,
 			 	V_ROW.subcategory_code,
 				V_ROW.product_name,
@@ -397,41 +397,41 @@ begin
 				V_ROW.created_date,
 				V_ROW.updated_date,
 				v_operation,
-				current_user,
-				now()::timestamp			
+				CURRENT_USER,
+				now()::TIMESTAMP			
 			);
-		end if;			
-    end if;                
-    return null;
-end;
-$$ language plpgsql;
+		END IF;			
+    END IF;                
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
 
-drop trigger if exists tb_product_auditory on sale.tb_product;
+DROP TRIGGER IF EXISTS tb_product_auditory ON sale.tb_product;
 
-create trigger tb_product_auditory 
-	after insert or update or delete on sale.tb_product
-	for each row execute function sale.fn_tb_product();		
+CREATE TRIGGER tb_product_auditory 
+	AFTER INSERT OR UPDATE OR DELETE ON sale.tb_product
+	FOR EACH ROW EXECUTE FUNCTION sale.fn_tb_product();		
 	
 --
 -- TB_SUBCATEGORY
 --
-create or replace function sale.fn_tb_subcategory()  returns trigger as 
+CREATE OR REPLACE FUNCTION sale.fn_tb_subcategory()  returns TRIGGER AS 
 $$
-declare
-	v_operation		sale_cdc.tb_subcategory_cdc.operation%type := 'D';
+DECLARE
+	v_operation		sale_cdc.tb_subcategory_cdc.operation%TYPE := 'D';
 	v_mycode		numeric(1);
-	v_row			sale_cdc.tb_subcategory_cdc%rowtype;
-begin	
+	v_row			sale_cdc.tb_subcategory_cdc%ROWTYPE;
+BEGIN	
 	--
 	-- If the operation is a delete, we have to save the OLD value
 	-- If not, we have to save the NEW value
 	--
 	v_row := NEW;
-	if TG_OP = 'DELETE' then
+	IF TG_OP = 'DELETE' THEN
 		v_row := OLD;
-	end if;
-	if TG_OP in ('INSERT', 'UPDATE', 'DELETE') then				  			
-		v_operation := substr(TG_OP, 1, 1);
+	END IF;
+	IF TG_OP IN ('INSERT', 'UPDATE', 'DELETE') THEN				  			
+		v_operation := SUBSTR(TG_OP, 1, 1);
 		--
 		-- Does the row exists?
 		--
@@ -440,25 +440,25 @@ begin
 		FROM 	sale_cdc.tb_subcategory_cdc PRO 
 		WHERE 	PRO.subcategory_code	= 	V_ROW.subcategory_code;
 		--
-		if FOUND then
+		IF FOUND THEN
 			--
 			-- If the row exists, we update it
 			--
-			update  sale_cdc.tb_subcategory_cdc	SUB
-			set  	category_code			=	V_ROW.category_code,					
+			UPDATE  sale_cdc.tb_subcategory_cdc	SUB
+			SET  	category_code			=	V_ROW.category_code,					
 					subcategory_name		=	V_ROW.subcategory_name,
 					created_by_user			=	V_ROW.created_by_user,
 					created_date			=	V_ROW.created_date,
 					updated_date			=	V_ROW.updated_date,
 					operation				=	v_operation,
-					user_id 				= 	current_user,
-					operation_timestamp		=	now()::timestamp
-			where	subcategory_code		=	V_ROW.subcategory_code;
-		else
+					user_id 				= 	CURRENT_USER,
+					operation_timestamp		=	now()::TIMESTAMP
+			WHERE	subcategory_code		=	V_ROW.subcategory_code;
+		ELSE
 			--
 			-- If the row not exists, we insert it
 			--		
-			insert into sale_cdc.tb_subcategory_cdc (
+			INSERT INTO sale_cdc.tb_subcategory_cdc (
 				subcategory_code,
 			 	category_code,
 				subcategory_name,
@@ -468,7 +468,7 @@ begin
 				operation,
 				user_id,
 				operation_timestamp
-			) values (
+			) VALUES (
 				V_ROW.subcategory_code,
 			 	V_ROW.category_code,
 				V_ROW.subcategory_name,
@@ -476,17 +476,17 @@ begin
 				V_ROW.created_date,
 				V_ROW.updated_date,
 				v_operation,
-				current_user,
-				now()::timestamp			
+				CURRENT_USER,
+				now()::TIMESTAMP			
 			);
-		end if;			
-    end if;                
-    return null;
-end;
-$$ language plpgsql;
+		END IF;			
+    END IF;                
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
 
-drop trigger if exists tb_subcategory_auditory on sale.tb_subcategory;
+DROP TRIGGER IF EXISTS tb_subcategory_auditory ON sale.tb_subcategory;
 
-create trigger tb_subcategory_auditory 
-	after insert or update or delete on sale.tb_subcategory
-	for each row execute function sale.fn_tb_subcategory();	
+CREATE TRIGGER tb_subcategory_auditory 
+	AFTER INSERT OR UPDATE OR DELETE ON sale.tb_subcategory
+	FOR EACH ROW EXECUTE FUNCTION sale.fn_tb_subcategory();	
