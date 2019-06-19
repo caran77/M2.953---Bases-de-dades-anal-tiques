@@ -94,10 +94,67 @@ Tamany comprimit: (21 valors als diccionari * 40 caràcters * 2 Bytes) + (10 mil
 
 Suposant que els nostres usuaris realitzen les següents consultes:
 
-•	El 65% de les consultes mostra informació de surt per país del client i client, de forma anual sobre la base de la data de comanda (order_dóna't).
+•	El 65% de les consultes mostra informació de surt per país del client i client, de forma anual sobre la base de la data de comanda (order_date).
 
 •	Un 15% de les consultes es mostra informació de tots els productes (nom, categoria, subcategoria, preu, data d'inici i data de fi), que s'utilitzarà per a importar a una base de dades de gestió de dades mestres.
 
 •	La resta de consultes que llancen els usuaris són consultes ad hoc (consultes no predefinides), és a dir, no sabem el tipus de consulta que s'espera sobre aquest model dimensional.
 
 Definir les projeccions necessàries per a donar una solució de rendiment òptima al tipus de consultes que s'han especificat anteriorment. No heu de definir més de 3 projeccions en total (sense comptar les superproyecciones de cadascuna de les taules). Explicar breument la clau d'ordenació seleccionada i per a quines consultes es crea la projecció.
+
+Recorem que, seguint les tècniques de Database Cracking, no definim índexos fixos a la base de dades. La projecció és adaptativa a la consulta específica que llença l'usuari. Així, si definim una projecció per a optimitzar les consultes, aquesta projecció s'adaptarà als cracks (zones específiques de la base de dades) quan es llencin consultes noves.
+
+Jo crearia dues projeccions per a la consulta 1, ja que representa el 65% de les consultes. Crearia una per a enguany i una altra per a l'any anterior. És d'esperar que siguin els dos cracks més consultats.
+
+Com que són dues taules diferents, entenc que s'han de juntar a una única taula. A mode d'exemple, escribim la query amb una join.
+
+Seguint la sintaxi Vertica:
+
+CREATE PROJECTION orders_2019
+
+AS
+
+  SELECT CLI.client_code, CLI.country
+  
+  FROM tb_order_line_fact OLF
+  
+  JOIN  tb_client_dim CLI ON (
+  
+    OLF.client_key = CLI.client_code
+    
+  )
+  
+  WHERE OLF.order_date BETWEEN TO_DATE('01/01/2019', 'dd/mm/yyyy') AND TO_DATE('31/12/2019 23:59:59', 'dd/mm/yyyy hh24:mi:ss')
+  
+  ORDER BY OLF.order_date;
+  
+CREATE PROJECTION orders_2018
+
+AS
+
+  SELECT CLI.client_code, CLI.country
+  
+  FROM tb_order_line_fact OLF
+  
+  JOIN  tb_client_dim CLI ON (
+  
+    OLF.client_key = CLI.client_code
+    
+  )
+  
+  WHERE OLF.order_date BETWEEN TO_DATE('01/01/2018', 'dd/mm/yyyy') AND TO_DATE('31/12/2018 23:59:59', 'dd/mm/yyyy hh24:mi:ss')
+  
+  ORDER BY OLF.order_date;  
+  
+  
+Finalment, crearia una tercera projecció per a la consulta del 15%. Com que es vol per a una taula mestra seria normal fer un group by per a tenir els valors diferents. No ho farem perque s'inclou la data d'inici i la data fi. Un mateix producte no pot tenir dos registres iguals. Orden per data perque entenc que és millor per a fer càrregues incrementals (permet filtrar millor pels productes a partir del moment de la darrera càrrega).
+
+CREATE PROJECTION master_data
+
+AS
+
+  SELECT  PRO.product_name, PRO.category_code, PRO.subcategory_code, PRO.price, PRO.start_date, PRO.end_date
+  
+  FROM    surt.tb_product_dim PRO
+  
+  ORDER BY PRO.start_date DESC;
